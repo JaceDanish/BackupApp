@@ -33,9 +33,18 @@ namespace BackupApp
             foreach (String file in Directory.GetFiles(sourceDir))
             {
                 String[] path = file.Split('\\');
+                String fileName = path[path.Length - 1];
+                
+                //if file exists: if target file was last accessed same time or later than source, skip overwrite
+                if (File.Exists($"{targetDir}\\{fileName}") &&
+                    DateTime.Compare(File.GetLastAccessTime($"{targetDir}\\{fileName}"), File.GetLastAccessTime(file)) > -1 )
+                {
+                    continue;
+                }
+
                 byte[] b = File.ReadAllBytes(file);
 
-                File.WriteAllBytes($"{targetDir}\\{path[path.Length - 1]}", b);
+                File.WriteAllBytes($"{targetDir}\\{fileName}", b);
                 Console.WriteLine(fileCount++);
             }
 

@@ -5,7 +5,8 @@ namespace BackupApp
 {
     class Program
     {
-        private static int fileCount = 1;
+        //counter - just to show program is running
+        private static decimal megabytes = 0;
         static void Main(string[] args)
         {
             String sourceDir = Directory.GetCurrentDirectory();
@@ -43,9 +44,9 @@ namespace BackupApp
                 }
 
                 byte[] b = File.ReadAllBytes(file);
-
+                megabytes += b.Length / 1000000;
                 File.WriteAllBytes($"{targetDir}\\{fileName}", b);
-                Console.WriteLine(fileCount++);
+                Console.WriteLine($"MB: {megabytes}");
             }
 
             //dirs contain full path name
@@ -53,12 +54,16 @@ namespace BackupApp
             {
                 String[] path = dirs.Split('\\');
                 String dir = path[path.Length - 1];
-
-                if (!Directory.Exists($"{targetDir}\\{dir}"))
+                
+                //Skip binaries and object code
+                if (!dir.Equals("obj") && !dir.Equals("bin"))
                 {
-                    Directory.CreateDirectory($"{targetDir}\\{dir}");
+                    if (!Directory.Exists($"{targetDir}\\{dir}"))
+                    {
+                        Directory.CreateDirectory($"{targetDir}\\{dir}");
+                    }
+                    BackUpRec($"{targetDir}\\{dir}", $"{sourceDir}\\{dir}");
                 }
-                BackUpRec($"{targetDir}\\{dir}", $"{sourceDir}\\{dir}");
             }
         }
     }
